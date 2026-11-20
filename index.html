@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Стол заказов типографии</title>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113824072', 'ym');
+
+    ym(113824072, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113824072" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --primary: #1e2a44;
+    --accent: #b8860b;
+    --accent-hover: #9a6f09;
+    --bg: #f7f4ee;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --muted: #7f8c8d;
+    --border: #e5e0d5;
+    --gold-soft: #f5e9c8;
+  }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ---------- Шапка ---------- */
+  header {
+    background: var(--primary);
+    color: #fff;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.2);
+  }
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-actions {
+    display: flex;
+    gap: 15px;
+  }
+  .header-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 15px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-btn:hover { background: rgba(255,255,255,.1); }
+  .header-btn.cart-btn {
+    background: var(--accent);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .header-btn.cart-btn:hover { background: var(--accent-hover); }
+  .cart-count {
+    background: #fff;
+    color: var(--accent);
+    border-radius: 50%;
+    min-width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 5px;
+  }
+
+  /* ---------- Баннер ---------- */
+  .hero {
+    text-align: center;
+    padding: 70px 20px 50px;
+    background: linear-gradient(135deg, #f7f4ee 0%, #ece5d3 100%);
+    position: relative;
+  }
+  .hero::before {
+    content: "☦";
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 40px;
+    color: var(--accent);
+    opacity: .4;
+  }
+  .hero h1 {
+    font-size: 38px;
+    margin-bottom: 14px;
+    color: var(--primary);
+    font-style: italic;
+  }
+  .hero p {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Категории на главной ---------- */
+  .categories-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 30px 20px;
+    text-align: center;
+  }
+  .categories-section h2 {
+    font-size: 30px;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .categories-section .subtitle {
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-size: 16px;
+  }
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  .category-card {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 26px 18px;
+    cursor: pointer;
+    transition: all .25s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .category-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform .3s;
+  }
+  .category-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(184,134,11,.18);
+  }
+  .category-card:hover::after { transform: scaleX(1); }
+  .category-card.active {
+    border-color: var(--accent);
+    background: var(--gold-soft);
+  }
+  .category-card.active::after { transform: scaleX(1); }
+  .category-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .category-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 4px;
+    font-family: 'Georgia', serif;
+  }
+  .category-count {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: Arial, sans-serif;
+  }
+
+  /* ---------- Фильтры ---------- */
+  .filters {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 30px 20px 10px;
+  }
+  .filter-btn {
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 8px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    transition: all .2s;
+  }
+  .filter-btn:hover { border-color: var(--accent); }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .catalog-title {
+    text-align: center;
+    color: var(--primary);
+    font-size: 24px;
+    padding: 10px 20px 0;
+    font-style: italic;
+  }
+
+  /* ---------- Каталог ---------- */
+  .catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 30px 60px;
+  }
+  .book-card {
+    background: var(--card);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    transition: transform .25s, box-shadow .25s;
+    display: flex;
+    flex-direction: column;
+  }
+  .book-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0,0,0,.12);
+  }
+  .book-cover {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    color: #fff;
+    position: relative;
+    cursor: pointer;
+  }
+  .book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .img-count {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0,0,0,.65);
+    color: #fff;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+  }
+  .book-info {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .book-category {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 6px;
+    font-family: Arial, sans-serif;
+    font-weight: 600;
+  }
+  .book-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--primary);
+    line-height: 1.3;
+  }
+  .book-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    gap: 8px;
+    padding-top: 14px;
+  }
+  .book-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    flex-direction: column;
+  }
+  .book-price small { font-size: 11px; color: var(--muted); font-weight: 400; text-transform: uppercase; font-family: Arial, sans-serif; }
+  .add-btn {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    padding: 9px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background .2s;
+    white-space: nowrap;
+  }
+  .add-btn:hover { background: var(--accent-hover); }
+  .add-btn.added { background: #27ae60; cursor: default; }
+
+  /* ---------- Корзина и Модалки ---------- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+    z-index: 200;
+  }
+  .overlay.open { opacity: 1; pointer-events: auto; }
+
+  .cart-panel {
+    position: fixed;
+    top: 0;
+    right: -420px;
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    background: #fff;
+    z-index: 201;
+    display: flex;
+    flex-direction: column;
+    transition: right .35s cubic-bezier(.4,0,.2,1);
+    box-shadow: -4px 0 20px rgba(0,0,0,.15);
+  }
+  .cart-panel.open { right: 0; }
+
+  .cart-header {
+    padding: 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cart-header h2 { font-size: 22px; }
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--muted);
+    line-height: 1;
+    padding: 0 6px;
+  }
+  .close-btn:hover { color: var(--primary); }
+
+  .cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 22px;
+  }
+  .cart-empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 20px;
+    font-style: italic;
+  }
+  .cart-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .cart-item-cover {
+    width: 54px;
+    height: 74px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #fff;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .cart-item-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .cart-item-info { flex: 1; min-width: 0; }
+  .cart-item-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cart-item-price { font-size: 13px; color: var(--muted); }
+  .qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .qty-btn {
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .qty-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .qty-num { min-width: 22px; text-align: center; font-weight: 700; }
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #c0392b;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 4px;
+    opacity: .6;
+    transition: opacity .2s;
+  }
+  .remove-btn:hover { opacity: 1; }
+
+  .cart-footer {
+    padding: 20px 22px;
+    border-top: 1px solid var(--border);
+    background: #faf8f2;
+  }
+  .cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .checkout-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .checkout-btn:hover { background: var(--accent-hover); }
+  .checkout-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,.6);
+  }
+  .modal.open { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 14px;
+    max-width: 460px;
+    width: 100%;
+    padding: 32px;
+    animation: popIn .3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  @keyframes popIn {
+    from { transform: scale(.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-box h2 { margin-bottom: 20px; color: var(--primary); }
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-family: Arial, sans-serif;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus { border-color: var(--accent); }
+  .submit-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background .2s;
+  }
+  .submit-btn:hover { background: #0f1626; }
+  .submit-btn:disabled { background: #7f8c8d; cursor: wait; }
+
+  .success-msg { text-align: center; padding: 20px 0; }
+  .success-msg .check { font-size: 60px; margin-bottom: 16px; }
+  .success-msg h2 { color: #27ae60; margin-bottom: 10px; }
+  .success-msg p { color: var(--muted); margin-bottom: 20px; }
+
+  .gallery-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    max-width: 620px;
+    width: 100%;
+    position: relative;
+  }
+  .gallery-close {
+    position: absolute;
+    top: 10px; right: 12px;
+    background: #fff; border-radius: 50%;
+    width: 36px; height: 36px; z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  }
+  #galleryMain {
+    width: 100%; max-height: 60vh;
+    object-fit: contain; border-radius: 10px;
+    background: #f5f3ef; display: block; margin-bottom: 14px;
+  }
+  .gallery-thumbs { display: flex; gap: 10px; overflow-x: auto; }
+  .gallery-thumbs img {
+    width: 70px; height: 90px; object-fit: cover;
+    border-radius: 8px; cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .gallery-thumbs img.active { border-color: var(--accent); }
+
+  .toast {
+    position: fixed;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--primary); color: #fff;
+    padding: 14px 26px; border-radius: 30px;
+    font-size: 15px; z-index: 400;
+    opacity: 0; transition: all .3s;
+    box-shadow: 0 6px 20px rgba(0,0,0,.25);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ---------- Футер ---------- */
+  footer {
+    background: var(--primary);
+    color: #c5cad3;
+    text-align: center;
+    padding: 30px 20px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  footer .cross { color: var(--accent); font-size: 24px; display: block; margin-bottom: 15px; }
+  footer .disclaimer {
+    font-size: 12px;
+    color: #8c939e;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 28px; }
+    .hero p { font-size: 16px; }
+    .hero { padding: 50px 16px 30px; }
+    header { padding: 14px 18px; flex-direction: column; gap: 15px; text-align: center; }
+    .logo { font-size: 16px; justify-content: center; }
+    .header-actions { width: 100%; justify-content: center; }
+    .header-btn { padding: 8px 12px; font-size: 13px; }
+    .catalog { padding: 16px; gap: 16px; }
+    .categories-section { padding: 30px 16px 10px; }
+    .categories-section h2 { font-size: 22px; }
+    .category-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .category-card { padding: 18px 10px; }
+    .category-icon { font-size: 30px; }
+    .category-name { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Шапка -->
+<header>
+  <div class="logo">
+    Стол заказов типографии<br>Екатеринбургской Епархии
+  </div>
+  <div class="header-actions">
+    <button class="header-btn cart-btn" onclick="openCart()">
+      🛒 Корзина <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- Баннер -->
+<section class="hero">
+  <h1>Духовная литература и церковная утварь</h1>
+  <p>Вы можете оформить заказ на печатную продукцию и забрать её в типографии.</p>
+</section>
+
+<!-- Категории на главной -->
+<section class="categories-section">
+  <h2>Каталог по разделам</h2>
+  <p class="subtitle">Выберите раздел, чтобы увидеть товары</p>
+  <div class="category-grid" id="categoryGrid"></div>
+</section>
+
+<!-- Фильтры -->
+<div class="filters" id="filters"></div>
+
+<!-- Заголовок каталога -->
+<h3 class="catalog-title" id="catalogTitle"></h3>
+
+<!-- Каталог -->
+<main class="catalog" id="catalog"></main>
+
+<!-- Затемнение -->
+<div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
+
+<!-- Панель корзины -->
+<aside class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h2>Корзина</h2>
+    <button class="close-btn" onclick="closeAllPanels()">×</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Итого пожертвование:</span>
+      <span id="cartTotal">0 ₽</span>
+    </div>
+    <button class="checkout-btn" id="checkoutBtn" onclick="openCheckout()">
+      Оформить заказ
+    </button>
+  </div>
+</aside>
+
+<!-- Модалка оформления заказа -->
+<div class="modal" id="checkoutModal">
+  <div class="modal-box" id="modalContent">
+    <h2>Оформление заказа</h2>
+    <p style="font-size: 13px; color: var(--muted); margin-bottom: 15px;">
+      Оставьте свои данные, и мы свяжемся с вами для согласования деталей.
+    </p>
+    <form id="checkoutForm" onsubmit="submitOrder(event)">
+      <div class="form-group">
+        <label>Ваше имя *</label>
+        <input type="text" name="name" required>
+      </div>
+      <div class="form-group">
+        <label>Телефон *</label>
+        <input type="tel" name="phone" required>
+      </div>
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" name="email" required>
+      </div>
+      
+      <!-- БЛОК ПРО ЗАБОР С РЕПИНА 6А -->
+      <div class="form-group" style="background: #faf8f2; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-top: 20px;">
+        <label style="color: var(--primary); font-weight: bold; font-size: 15px; margin-bottom: 10px; display: block;">Забор товара с Репина 6А *</label>
+        <label style="margin-top: 5px;">Выберите дату забора:</label>
+        <input type="date" name="pickup_date" required style="margin-bottom: 12px; cursor: pointer;">
+        
+        <div style="font-size: 13px; color: var(--text); line-height: 1.5; border-top: 1px dashed var(--border); padding-top: 10px;">
+          <b>Контакты типографии (Алена):</b><br>
+          📞 <a href="tel:+79960320581" style="color: var(--accent); font-weight: bold;">+7 996 032-05-81</a><br>
+          ✉️ <a href="mailto:alena@orthodox-polygraphy.ru" style="color: var(--accent); font-weight: bold;">alena@orthodox-polygraphy.ru</a>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">Отправить запрос</button>
+    </form>
+  </div>
+</div>
+
+<!-- Модалка галереи -->
+<div class="modal gallery-modal" id="galleryModal">
+  <div class="gallery-box">
+    <button class="close-btn gallery-close" onclick="closeGallery()">×</button>
+    <img id="galleryMain" src="" alt="">
+    <div class="gallery-thumbs" id="galleryThumbs"></div>
+  </div>
+</div>
+
+<!-- Уведомление -->
+<div class="toast" id="toast"></div>
+
+<!-- Футер -->
+<footer>
+  <span class="cross">☦</span>
+  <div class="disclaimer">
+    Сайт носит исключительно информационный характер и не является публичной офертой, определяемой положениями Статьи 437 (2) Гражданского кодекса РФ. Все указанные на сайте суммы являются рекомендуемым размером добровольного пожертвования.
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   КАТАЛОГ
+   ============================================================ */
+const books = [
+  // ---------- ЗАКОН БОЖИЙ ----------
+  { id: 1,  title: 'Книга «Закон Божий». Руководство для семьи и школы, в твердом переплете (ф.А4), стр.560', author: '', price: 300, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  { id: 2,  title: 'Книга «Новый Завет» в параллельном переводе, в твердом переплете (ф.А4), стр.590', author: '', price: 300, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  { id: 3,  title: 'Книга «Православный молитвослов для слабовидящих», белая бумага, в твердом переплете (ф.А4), стр.344', author: '', price: 300, category: 'Молитвослов', emoji: '🙏', color: '#1c1917', images: [] },
+  { id: 4,  title: 'Книга «Евангелие», формат А5, в твердом переплете, стр.205', author: '', price: 200, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  { id: 5,  title: 'Книга «Православный молитвослов», ф.А5, в т. переплете, стр.159', author: '', price: 190, category: 'Молитвослов', emoji: '🙏', color: '#1c1917', images: [] },
+  { id: 6,  title: 'Книга «ПРОПОВЕДИ священнослужителей Екатеринбургской епархии, окормляющих войсковые части и подразделения силовых структур», в твердом переплете, ф.А5, стр.587', author: '', price: 300, category: 'Проповеди', emoji: '📢', color: '#7c2d12', images: [] },
+  { id: 7,  title: 'Книга протоиерея о. Сергия Вогулкина «Будьте как дети», в твердом переплете, белая бумага (ф.А5), стр.175', author: '', price: 190, category: 'Проповеди', emoji: '📢', color: '#7c2d12', images: [] },
+  { id: 8,  title: 'Книга протоиерея о. Сергия Вогулкина «Долги наши тяжкие», в твердом переплете, белая бумага (ф.А5), стр.142', author: '', price: 190, category: 'Проповеди', emoji: '📢', color: '#7c2d12', images: [] },
+  { id: 9,  title: 'Книга «Опыт построения исповеди по беседам Архимандрита Иоанна (Крестьянкина)», размер 14,0*20,5 см (ф.А5), стр.138, в мягком переплете', author: '', price: 60, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  { id: 10, title: 'Книга «Псалтырь», в твердом переплете, размер 8,3*11,3 см (ф.А7), стр.652', author: '', price: 150, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  { id: 11, title: 'Книжечка «Синодик» (О здравии, о упокоении), в твердом переплете, с цв. вставками, размер 15,5*11 см (ф.А6), стр.65', author: '', price: 150, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  { id: 12, title: 'Книга А.И. Осипова «Путь разума в поисках истины», в мягком переплете, ф.А5, стр.349', author: '', price: 130, category: 'Проповеди', emoji: '📢', color: '#7c2d12', images: [] },
+  { id: 13, title: 'Книга А.И. Осипова «Из времени в вечность: посмертная жизнь души», в мягком переплете, ф.А5, стр.183', author: '', price: 110, category: 'Проповеди', emoji: '📢', color: '#7c2d12', images: [] },
+  { id: 14, title: 'Книжечка «Крещение — рождение в жизнь вечную», на скрепке, ф.А5, стр.128', author: '', price: 70, category: 'Крещение', emoji: '💧', color: '#0369a1', images: [] },
+  { id: 15, title: 'Книжечка «Как правильно подготовиться к таинству Крещения», на белой бумаге, ф.А5, стр.63', author: '', price: 40, category: 'Крещение', emoji: '💧', color: '#0369a1', images: [] },
+  { id: 16, title: 'Книжечка «Путь к Богу», на белой бумаге, ф.А5, стр.59', author: '', price: 70, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  { id: 17, title: 'Книжечка «Акафист святому преподобному Гавриилу Самтаврийскому (Ургебадзе). Духовные наставления», на белой бумаге, ф.А5, стр.51', author: '', price: 70, category: 'Акафист', emoji: '🕯️', color: '#a16207', images: [] },
+  { id: 18, title: 'Книжечка «Памятка крещаемому», на белой бумаге, ф.А5, стр.27', author: '', price: 30, category: 'Крещение', emoji: '💧', color: '#0369a1', images: [] },
+  { id: 19, title: 'Книжечка «Акафист Святителю Николаю Чудотворцу», на белой бумаге, ф.А5, стр.23', author: '', price: 30, category: 'Акафист', emoji: '🕯️', color: '#a16207', images: [] },
+  { id: 20, title: 'Книжечка «Молитвослов православного воина», размер 6,8*10,0 см (ф.А7), стр.128', author: '', price: 15, category: 'Молитвослов', emoji: '🙏', color: '#1c1917', images: [] },
+  { id: 21, title: 'Книжечка «Молитвослов», размер 9,5*14,5 см (ф.А6), стр.128', author: '', price: 40, category: 'Молитвослов', emoji: '🙏', color: '#1c1917', images: [] },
+  { id: 22, title: 'Книжечка «В помощь кающемуся», размер 9,5*13,8 см (ф.А6), стр.9', author: '', price: 25, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  { id: 23, title: 'Книжечка «Что нужно знать о Таинстве Крещения», размер 9,3*13,7 см (ф.А6), стр.80', author: '', price: 20, category: 'Крещение', emoji: '💧', color: '#0369a1', images: [] },
+  { id: 24, title: 'Книжечка «Канон Андрея Критского», размер 10,0*14,0 см (ф.А6), стр.78', author: '', price: 35, category: 'Акафист', emoji: '🕯️', color: '#a16207', images: [] },
+  { id: 25, title: 'Книжечка «Молитвы о детях и благополучии семьи», размер 10,0*14,0 см (ф.А6), стр.70', author: '', price: 30, category: 'Молитвослов', emoji: '🙏', color: '#1c1917', images: [] },
+  { id: 26, title: 'Книжечка «Житие и акафист святому праведному Симеону Верхотурскому», размер 9,5*14,5 см (ф.А6), стр.64', author: '', price: 30, category: 'Акафист', emoji: '🕯️', color: '#a16207', images: [] },
+  { id: 27, title: 'Книжечка протоиерея о. Сергия Вогулкина «Как правильно болеть», размер 10,0*14,0 см (ф.А6), стр.64, на газетной бумаге', author: '', price: 20, category: 'Проповеди', emoji: '📢', color: '#7c2d12', images: [] },
+  { id: 28, title: 'Книжечка протоиерея о. Сергия Вогулкина «Нехорошо человеку быть одному», размер 10,5*14,0 см (ф.А6), стр.56, на газетной бумаге', author: '', price: 20, category: 'Проповеди', emoji: '📢', color: '#7c2d12', images: [] },
+  { id: 29, title: 'Книжечка «Как вести себя на кладбище», размер 10,3*14,0 см (ф.А6), стр.48, на газетной бумаге', author: '', price: 15, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  { id: 30, title: 'Книжечка «От Меня это было», размер 9,5*14,1 см (ф.А6), стр.32', author: '', price: 15, category: 'Закон Божий', emoji: '📖', color: '#8b5e3c', images: [] },
+  
+  // ---------- ИКОНКИ ----------
+  { id: 31, title: 'Иконка-складень «Верую во единого Бога Отца» (с ламинацией) на три иконы, размер 20,5*10 см, в развернутом виде', author: '', price: 18, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+  { id: 32, title: 'Карточка «Молитва на принятие святой воды и просфоры», размер 19*11 см (разные цвета)', author: '', price: 10, category: 'Молитвослов', emoji: '🙏', color: '#1c1917', images: [] },
+  { id: 33, title: 'Иконка-складень с оборотом Псалом 90-й (без ламинации), размер 9*12 см, в разверн. виде', author: '', price: 10, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+  { id: 34, title: 'Иконка «Иисуса Христа», с молитвой на обороте, с ламинацией, размер 6,5*8 см', author: '', price: 10, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+  { id: 35, title: 'Иконка «Александра Невского», с молитвой на обороте (без ламинации), размер 6,2*9 см', author: '', price: 5, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+  { id: 36, title: '«Молитва разрешительная», формат А4', author: '', price: 10, category: 'Молитвослов', emoji: '🙏', color: '#1c1917', images: [] },
+  { id: 37, title: 'Иконка-складень с оборотом «Молитва об исцелении больных», размер 14,7*6 см, в разверн. виде', author: '', price: 10, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+  
+  // ---------- ДРУГОЕ ----------
+  { id: 38, title: 'Этикетка на самоклеющейся бумаге «Святая вода», размер 8,0*10,0 см (ф.А7), 1 шт.', author: '', price: 10, category: 'Другое', emoji: '📄', color: '#475569', images: [] },
+  { id: 39, title: 'Свидетельство о венчании, в твердом переплете, размер 15,0*22,0 см (ф.А5)', author: '', price: 150, category: 'Другое', emoji: '📄', color: '#475569', images: [] },
+  { id: 40, title: 'Свидетельство о крещении, в твердом переплете, размер 12,7*16,6 см', author: '', price: 125, category: 'Другое', emoji: '📄', color: '#475569', images: [] },
+  { id: 41, title: 'Свидетельство о крещении, на картоне с цветной печатью с одной стороны, размер 16,0*24,6 см (в развернутом виде)', author: '', price: 25, category: 'Другое', emoji: '📄', color: '#475569', images: [] },
+  { id: 42, title: 'Требы: «О здравии», «О упокоении», на газетной бумаге', author: '', price: 600, category: 'Другое', emoji: '📄', color: '#475569', images: [] },
+  { id: 43, title: 'Портрет митрополита Екатеринбургского и Верхотурского Евгения, цветной (4+0), формат А3 (большой), заламинированный', author: '', price: 150, category: 'Другое', emoji: '📄', color: '#475569', images: [] },
+  { id: 44, title: 'Портрет митрополита Екатеринбургского и Верхотурского Евгения, цветной (4+0), формат А4, заламинированный', author: '', price: 100, category: 'Другое', emoji: '📄', color: '#475569', images: [] },
+  { id: 45, title: '«Обязательство крестного», ф.А4, на картоне, 4+0', author: '', price: 10, category: 'Крещение', emoji: '💧', color: '#0369a1', images: [] },
+  { id: 46, title: '«Молитва Оптинских старцев», ф.А3, на бумаге, 4+0', author: '', price: 15, category: 'Молитвослов', emoji: '🙏', color: '#1c1917', images: [] },
+  { id: 47, title: 'Иконка «Святое Семейство», ф.А5, цветная 4+4, на обороте молитва, заламинированная', author: '', price: 70, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+  { id: 48, title: 'Иконка «Целителя Пантелеимона», ф.А5, цветная 4+4, на обороте молитва, заламинированная', author: '', price: 70, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+  { id: 49, title: 'Иконка «Святителя Николая Чудотворца», ф.А5, цветная 4+4, на обороте молитва, заламинированная', author: '', price: 70, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+  { id: 50, title: 'Иконка «Святому праведному Иосифу Обручнику», ф.А5, цветная 4+4, на обороте молитва, заламинированная', author: '', price: 70, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+  { id: 51, title: 'Иконка «Святой Иоанн Тобольский», ф.А5, цветная 4+4, на обороте молитва, заламинированная', author: '', price: 70, category: 'Иконки', emoji: '🖼️', color: '#6d28d9', images: [] },
+
+  // ---------- ТОВАРЫ ОТ АРХИМАНДРИТА ----------
+  { id: 52, title: 'Чай', author: '', price: 250, category: 'Товары от Архимандрита', emoji: '🍵', color: '#556b2f', images: [] },
+  { id: 53, title: 'Шоколад', author: '', price: 250, category: 'Товары от Архимандрита', emoji: '🍫', color: '#5c3a21', images: [] },
+
+  // ---------- НОВЫЙ БЛОК: ПРАВОСЛАВНАЯ ГАЗЕТА ----------
+  { id: 54, title: 'Православная газета (50 штук)', author: '', price: 600, category: 'Другое', emoji: '📰', color: '#4b5563', images: [] }
+];
+
+const categoryIcons = {
+  'Закон Божий':   '📖',
+  'Молитвослов':   '🙏',
+  'Проповеди':     '📢',
+  'Крещение':      '💧',
+  'Акафист':       '🕯️',
+  'Иконки':        '🖼️',
+  'Другое':        '📄',
+  'Товары от Архимандрита': '🍃'
+};
+
+/* ============================================================
+   СОСТОЯНИЕ
+   ============================================================ */
+let cart = JSON.parse(localStorage.getItem('bookCart') || '[]');
+let activeFilter = 'Все';
+
+function declOfNum(n, titles) {
+  const cases = [2, 0, 1, 1, 1, 2];
+  return titles[(n % 100 > 4 && n % 100 < 20) ? 2 : cases[(n % 10 < 5) ? n % 10 : 5]];
+}
+
+/* ============================================================
+   РЕНДЕР КАТАЛОГА
+   ============================================================ */
+function renderCategoryCards() {
+  const cats = [...new Set(books.map(b => b.category))];
+  document.getElementById('categoryGrid').innerHTML = cats.map(cat => {
+    const count = books.filter(b => b.category === cat).length;
+    return `
+      <div class="category-card ${activeFilter === cat ? 'active' : ''}"
+           onclick="selectCategory('${cat}')">
+        <span class="category-icon">${categoryIcons[cat] || '📚'}</span>
+        <div class="category-name">${cat}</div>
+        <div class="category-count">${count} ${declOfNum(count, ['товар','товара','товаров'])}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectCategory(cat) {
+  setFilter(cat);
+  document.getElementById('catalogTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderFilters() {
+  const cats = ['Все', ...new Set(books.map(b => b.category))];
+  document.getElementById('filters').innerHTML = cats.map(c =>
+    `<button class="filter-btn ${c === activeFilter ? 'active' : ''}"
+             onclick="setFilter('${c}')">${c}</button>`
+  ).join('');
+}
+
+function setFilter(cat) {
+  activeFilter = cat;
+  renderFilters();
+  renderCategoryCards();
+  renderCatalog();
+}
+
+function renderCatalog() {
+  const list = activeFilter === 'Все' ? books : books.filter(b => b.category === activeFilter);
+
+  const title = document.getElementById('catalogTitle');
+  if (activeFilter === 'Все') {
+    title.textContent = `Все товары (${books.length})`;
+  } else {
+    title.textContent = `${categoryIcons[activeFilter] || ''} ${activeFilter} — ${list.length} ${declOfNum(list.length, ['товар','товара','товаров'])}`;
+  }
+
+  document.getElementById('catalog').innerHTML = list.map(b => {
+    const cover = b.images && b.images.length ? b.images[0] : null;
+    const hasGallery = b.images && b.images.length > 1;
+
+    return `
+    <article class="book-card">
+      <div class="book-cover" 
+           style="background: linear-gradient(135deg, ${b.color}, ${b.color}cc)"
+           ${cover ? `onclick="openGallery(${b.id})"` : ''}>
+        ${cover ? `<img src="${cover}" alt="${b.title}">` : b.emoji}
+        ${hasGallery ? `<span class="img-count">📷 ${b.images.length}</span>` : ''}
+      </div>
+      <div class="book-info">
+        <div class="book-category">${b.category}</div>
+        <div class="book-title">${b.title}</div>
+        <div class="book-bottom">
+          <div class="book-price">
+            ${b.price.toLocaleString('ru-RU')} ₽ 
+            <small>размер пожертвования</small>
+          </div>
+          <button class="add-btn" onclick="addToCart(${b.id}, this)">В корзину</button>
+        </div>
+      </div>
+    </article>
+  `;
+  }).join('');
+}
+
+/* ============================================================
+   КОРЗИНА
+   ============================================================ */
+function addToCart(id, btn) {
+  const book = books.find(b => b.id === id);
+  const existing = cart.find(item => item.id === id);
+  if (existing) existing.qty += 1;
+  else cart.push({ ...book, qty: 1 });
+
+  saveCart();
+  updateCartUI();
+
+  if (btn) {
+    const original = btn.textContent;
+    btn.textContent = '✓ Добавлено';
+    btn.classList.add('added');
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove('added');
+    }, 1200);
+  }
+  showToast(`«${book.title}» добавлен в корзину`);
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+  saveCart();
+  updateCartUI();
+}
+
+function removeItem(id) {
+  cart = cart.filter(i => i.id !== id);
+  saveCart();
+  updateCartUI();
+}
+
+function saveCart() {
+  localStorage.setItem('bookCart', JSON.stringify(cart));
+}
+
+function updateCartUI() {
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cartCount').textContent = count;
+
+  const itemsEl = document.getElementById('cartItems');
+  if (cart.length === 0) {
+    itemsEl.innerHTML = '<div class="cart-empty">Корзина пуста 🛒<br>Добавьте товары из каталога</div>';
+  } else {
+    itemsEl.innerHTML = cart.map(item => {
+      const cover = item.images && item.images.length ? item.images[0] : null;
+      return `
+      <div class="cart-item">
+        <div class="cart-item-cover" style="background: linear-gradient(135deg, ${item.color}, ${item.color}cc)">
+          ${cover ? `<img src="${cover}" alt="${item.title}">` : item.emoji}
+        </div>
+        <div class="cart-item-info">
+          <div class="cart-item-title">${item.title}</div>
+          <div class="cart-item-price">Пожертвование: ${item.price.toLocaleString('ru-RU')} ₽</div>
+          <div class="qty-controls">
+            <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+          </div>
+        </div>
+        <button class="remove-btn" onclick="removeItem(${item.id})" title="Удалить">✕</button>
+      </div>
+      `;
+    }).join('');
+  }
+
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  document.getElementById('cartTotal').textContent = total.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('checkoutBtn').disabled = cart.length === 0;
+}
+
+/* ============================================================
+   УПРАВЛЕНИЕ ПАНЕЛЯМИ
+   ============================================================ */
+function openCart() {
+  closeAllPanels();
+  document.getElementById('cartPanel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeAllPanels() {
+  document.getElementById('cartPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function openCheckout() {
+  if (cart.length === 0) return;
+  document.getElementById('checkoutModal').classList.add('open');
+}
+function closeCheckout() {
+  document.getElementById('checkoutModal').classList.remove('open');
+}
+
+/* ============================================================
+   ГАЛЕРЕЯ
+   ============================================================ */
+let currentGalleryImages = [];
+
+function openGallery(id) {
+  const book = books.find(b => b.id === id);
+  if (!book || !book.images || book.images.length === 0) return;
+
+  currentGalleryImages = book.images;
+  document.getElementById('galleryMain').src = book.images[0];
+  document.getElementById('galleryMain').alt = book.title;
+
+  document.getElementById('galleryThumbs').innerHTML = book.images.map((img, i) => `
+    <img src="${img}" alt="${book.title} ${i+1}" 
+         class="${i === 0 ? 'active' : ''}" 
+         onclick="setGalleryImage('${img}', this)">
+  `).join('');
+
+  document.getElementById('galleryModal').classList.add('open');
+}
+
+function setGalleryImage(src, thumb) {
+  document.getElementById('galleryMain').src = src;
+  document.querySelectorAll('.gallery-thumbs img').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+
+function closeGallery() {
+  document.getElementById('galleryModal').classList.remove('open');
+}
+
+/* ============================================================
+   ОФОРМЛЕНИЕ ЗАКАЗА (Formspree + Автоответ)
+   ============================================================ */
+async function submitOrder(e) {
+  e.preventDefault();
+  
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xdeeeeea';
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form));
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+  const itemsList = cart.map(i => 
+    `• ${i.title} — ${i.qty} шт. = ${(i.price * i.qty).toLocaleString('ru-RU')} ₽`
+  ).join('\n');
+
+  // Текст письма, который автоматически получит покупатель
+  const autoResponseMessage = `Здравствуйте, ${data.name}!
+
+Благодарим вас за оформление заявки в Стол заказов типографии Екатеринбургской Епархии.
+
+Ваш заказ:
+${itemsList}
+
+Итого пожертвование: ${total.toLocaleString('ru-RU')} ₽
+Дата забора: ${data.pickup_date} (ул. Репина, 6А)
+
+Если у вас возникли вопросы, вы можете связаться с нами:
+Алена
+Телефон: +7 996 032-05-81
+Email: alena@orthodox-polygraphy.ru
+
+Спасибо за ваш заказ!`;
+
+  // Данные для отправки в Formspree
+  const payload = {
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    pickup_date: data.pickup_date,
+    order_details: itemsList,
+    total_donation: total.toLocaleString('ru-RU') + ' ₽',
+    
+    // Специальное поле Formspree для автоматического ответа покупателю
+    _autoresponse: autoResponseMessage 
+  };
+
+  const submitBtn = form.querySelector('.submit-btn');
+  const originalBtnText = submitBtn.textContent;
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Отправка...';
+
+  try {
+    const response = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error('Ошибка отправки');
+
+    document.getElementById('modalContent').innerHTML = `
+      <div class="success-msg">
+        <div class="check">✅</div>
+        <h2>Заказ отправлен!</h2>
+        <p>Спасибо, ${data.name}!<br>
+           Копия заказа отправлена на вашу почту ${data.email}.<br>
+           Мы свяжемся с вами по телефону ${data.phone}.<br>
+           Ожидаем вас с ${data.pickup_date} по адресу ул. Репина, 6А.</p>
+        <button class="submit-btn" onclick="finishOrder()">Отлично</button>
+      </div>
+    `;
+
+    cart = [];
+    saveCart();
+    updateCartUI();
+
+  } catch (error) {
+    console.error(error);
+    alert('Не удалось отправить заказ. Пожалуйста, проверьте интернет или позвоните нам.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalBtnText;
+  }
+}
+
+function finishOrder() {
+  closeCheckout();
+  setTimeout(() => {
+    document.getElementById('modalContent').innerHTML = `
+      <h2>Оформление заказа</h2>
+      <p style="font-size: 13px; color: var(--muted); margin-bottom: 15px;">
+        Оставьте свои данные, и мы свяжемся с вами для согласования деталей.
+      </p>
+      <form id="checkoutForm" onsubmit="submitOrder(event)">
+        <div class="form-group">
+          <label>Ваше имя *</label>
+          <input type="text" name="name" required>
+        </div>
+        <div class="form-group">
+          <label>Телефон *</label>
+          <input type="tel" name="phone" required>
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" name="email" required>
+        </div>
+        
+        <div class="form-group" style="background: #faf8f2; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-top: 20px;">
+          <label style="color: var(--primary); font-weight: bold; font-size: 15px; margin-bottom: 10px; display: block;">Забор товара с Репина 6А *</label>
+          <label style="margin-top: 5px;">Выберите дату забора:</label>
+          <input type="date" name="pickup_date" required style="margin-bottom: 12px; cursor: pointer;">
+          
+          <div style="font-size: 13px; color: var(--text); line-height: 1.5; border-top: 1px dashed var(--border); padding-top: 10px;">
+            <b>Контакты типографии (Алена):</b><br>
+            📞 <a href="tel:+79960320581" style="color: var(--accent); font-weight: bold;">+7 996 032-05-81</a><br>
+            ✉️ <a href="mailto:alena@orthodox-polygraphy.ru" style="color: var(--accent); font-weight: bold;">alena@orthodox-polygraphy.ru</a>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Отправить запрос</button>
+      </form>
+    `;
+  }, 300);
+}
+
+/* ============================================================
+   TOAST И ИНИЦИАЛИЗАЦИЯ
+   ============================================================ */
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+renderCategoryCards();
+renderFilters();
+renderCatalog();
+updateCartUI();
+
+document.getElementById('checkoutModal').addEventListener('click', e => { if (e.target.id === 'checkoutModal') closeCheckout(); });
+document.getElementById('galleryModal').addEventListener('click', e => { if (e.target.id === 'galleryModal') closeGallery(); });
+</script>
+</body>
+</html>
